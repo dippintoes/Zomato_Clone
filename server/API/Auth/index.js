@@ -1,6 +1,7 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import passport from "passport";
 //models
 import { UserModel } from "../../database/user"; //need to destructure because it is not default export
 
@@ -16,13 +17,10 @@ Method        Post
 */
 Router.post("/signup", async(req, res) => {
     try {
-        const { email, phoneNumber } = req.body.credentials;
-
+        
         //check whether email exists by calling model and triggering
         await UserModel.findByEmailAndPhone(req.body.credentials);
-        
 
-        //save to db
         const newUser = await UserModel.create(req.body.credentials);
 
 
@@ -62,6 +60,40 @@ Router.post("/signin", async(req, res) => {
         return res.status(500).json({ error: error.message });
     }
 });
+
+
+/* 
+Route:       /google
+Description: google signin
+Params:      None
+Access        google
+Method        Post
+*/
+
+//scope permission from google for user's profile and email
+Router.get("/google", 
+passport.authenticate("google",{
+    scope:["https://www.googleapis.com/auth/userinfo.profile","https://www.googleapis.com/auth/userinfo.email"
+],
+})
+);
+
+/* 
+Route:       /google/callback
+Description: google signin callback
+Params:      None
+Access        google
+Method        Post
+*/
+
+//scope permission from google for user's profile and email
+Router.get("/google/callback", 
+passport.authenticate("google",
+    {failureRedirect: "/"}),
+    (req,res)=>{
+        return res.json({token:req.session.passport.user.token});
+    }
+);
 
 
 

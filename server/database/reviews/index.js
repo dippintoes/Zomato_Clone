@@ -23,7 +23,7 @@ const ReviewSchema = mongoose.Schema({
         ref: "Images",
     }]
 }, {
-    timestamps = true,
+    timestamps : true,
 });
 
-export const ReviewModel = mongoose.Model("Reviews", ReviewSchema);
+export const ReviewModel = mongoose.model("Reviews", ReviewSchema);
